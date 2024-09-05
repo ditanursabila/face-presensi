@@ -12,7 +12,11 @@
     <div class="w-1/2 border border-black p-4 m-2">
       <div class="flex">
         <div class="w-full md:h-[300px] bg-black flex items-center justify-center">
-          <p class="text-white text-lg">Camera Feed Placeholder</p>
+          <!-- <p class="text-white text-lg">Camera Feed Placeholder</p> -->
+          <div>Teachable Machine Image Model</div>
+          <button type="button" onclick="init()">Start</button>
+          <div id="webcam-container"></div>
+          <div id="label-container"></div>
         </div>
       </div>
     </div>
@@ -22,8 +26,9 @@
         <h3>Presensi Hari Ini {{}}</h3>
       </div>
       <table class="border-collapse border border-black w-full">
-        <thead>
+        <thead class="bg-[#0365AE] text-white">
           <tr>
+            <th class="border border-black">NO</th>
             <th class="border border-black">Nama</th>
             <th class="border border-black">Kelas</th>
             <th class="border border-black">Jurusan</th>
@@ -34,6 +39,7 @@
 
         <tbody>
           <tr v-for="(visitor, i) in visitors" :key="i">
+            <td class="border border-black">{{ i + 1 }}.</td>
             <td class="border border-black">{{ visitor.nama }}</td>
             <td class="border border-black">{{ visitor.kelas }}</td>
             <td class="border border-black">{{ visitor.jurusan }}</td>

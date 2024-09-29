@@ -2,29 +2,23 @@
   <div>
     <div>
       <div v-if="detected">
-        <span class="mt-5 mb-5 inline-flex items-center md:ms-[250px] bg-green-100 text-green-800 text-xs font-medium px-5 py-1.5 rounded-full dark:bg-green-900 dark:text-green-300">
-          <span class="w-2 h-2 me-1 bg-green-500 rounded-full"></span>
-          Terdeteksi
-        </span>
+        <span class="text-xs font-medium px-10 py-2 ms-48 mt-4 bg-green-100 text-green-800 rounded-full dark:bg-green-900 dark:text-green-300"> Terdeteksi </span>
       </div>
       <div v-else>
-        <span class="mt-5 mb-5 inline-flex items-center m-48 bg-red-100 text-red-800 text-xs font-medium px-5 py-1.5 rounded-full dark:bg-red-900 dark:text-red-300">
-          <span class="w-2 h-2 me-1 bg-red-500 rounded-full"></span>
-          Gagal Deteksi
-        </span>
+        <span class="text-xs font-medium px-10 py-2 ms-48 mt-4 dark:bg-red-900 dark:text-red-300 rounded-full"> Gagal Deteksi </span>
       </div>
-    </div>
 
-    <div class="border border-black p-4 ms-10">
-      <div class="flex">
+      <div class="overflow-auto border border-black p-4 m-5 shadow-xl flex-1">
         <div class="w-full md:h-[320px] bg-black flex items-center justify-center">
           <div id="webcam-container"></div>
         </div>
+        <div id="label-container"></div>
       </div>
-      <div id="label-container"></div>
     </div>
-    <button v-if="!isStarted" class="bg-blue-100 text-dark text-xs font-medium px-10 py-2 ms-48 mt-4 rounded-md dark:bg-red-900 dark:text-red-300" type="button" @click="init()">Presensi</button>
-    <button v-if="detected" class="bg-green-100 text-dark text-xs font-medium px-10 py-2 ms-48 mt-4 rounded-md dark:bg-green-900 dark:text-green-300" type="button" @click="handleButtonClick">Send Data</button>
+    <button v-if="!isStarted" class="bg-blue-100 text-dark text-md font-medium px-10 py-2 ms-48 mt-4 rounded-md dark:bg-blue-800 text-black" type="button" @click="init()">Presensi</button>
+    <button v-if="classNameDetected != null && classNameDetected != ''" class="bg-green-100 text-dark text-md font-medium px-10 py-2 ms-48 mt-4 rounded-md dark:bg-green-900 dark:text-green-300" type="button" @click="handleButtonClick">
+      Send Data
+    </button>
   </div>
 </template>
 
@@ -36,6 +30,7 @@ let model, webcam, labelContainer, maxPredictions;
 let results = [];
 let detected = ref(false);
 let isStarted = ref(false);
+let classNameDetected = ref("");
 
 // Load the image model and setup the webcam
 async function init() {
@@ -76,36 +71,38 @@ async function loop() {
 async function predict() {
   // predict can take in an image, video or canvas html element
   const prediction = await model.predict(webcam.canvas);
-  // for (let i = 0; i < maxPredictions; i++) {
-  //   const classPrediction =
-  //     prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-  //   labelContainer.childNodes[i].innerHTML = classPrediction;
-  // }
-  results = prediction;
-  if (prediction[0].probability >= 0.9) {
-    detected.value = true;
-    labelContainer.innerHTML = prediction[0].className;
-  } else {
-    detected.value = false;
-    labelContainer.innerHTML = "Dekatkan lagi wajah kamu!!";
+  for (let i = 0; i < maxPredictions; i++) {
+    if (prediction[i].probability >= 0.9) {
+      if (prediction[i].className != "null") {
+        detected.value = true;
+        labelContainer.innerHTML = prediction[i].className;
+        classNameDetected.value = prediction[i].className;
+        break;
+      }
+    } else {
+      detected.value = false;
+      labelContainer.innerHTML = "Dekatkan lagi wajah kamu!!";
+      classNameDetected.value = "";
+    }
   }
+  results = prediction;
 }
 
 const supabase = useSupabaseClient();
 async function sendDataToSupabase(prediction) {
-  if (!prediction || !prediction[0]) {
+  if (!prediction) {
     console.error("Invalid prediction data");
     return;
   }
 
   // Log data yang akan dikirim
   console.log("Sending data:", {
-    nama: prediction[0].className,
+    nama: classNameDetected.value,
   });
 
   const { data, error } = await supabase.from("siswa").insert([
     {
-      nama: prediction[0].className,
+      nama: classNameDetected.value,
     },
   ]);
 

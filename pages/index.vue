@@ -2,7 +2,7 @@
   <div class="container mx-auto p-4">
     <div class="flex flex-col lg:flex-row gap-4">
       <div class="flex-1 p-4">
-        <Cam />
+        <Cam  @deteksi-wajah="handleDetection"/>
       </div>
 
       <div class="max-w-full max-h-[348px] overflow-auto border border-black p-4 m-5 mt-[65px] shadow-xl flex-1">
@@ -11,12 +11,10 @@
         </div>
 
         <div class="flex justify-between mb-4 mt-5">
-          <input type="date" v-model="selectedDate" class="border p-2 rounded" />
-          <button @click="applyFilter" class="bg-blue-500 text-white px-2 me-80 rounded">Apply</button>
+          <input type="date" @change="filterData" class="border p-2 rounded" />
+          <nuxt-link to="/login" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"> Tambah Siswa </nuxt-link>
         </div>
-        <div class="mb-5">
-          <nuxt-link to="/login" class="bg-green-700 text-white px-2 py-2 rounded"> Tambah Siswa </nuxt-link>
-        </div>
+        <div class="mb-5"></div>
 
         <table class="border-collapse border border-black w-full min-w-full table-auto">
           <thead class="bg-[#0365AE] text-white">
@@ -31,8 +29,8 @@
           <tbody>
             <tr v-for="(visitor, i) in visitors" :key="i">
               <td class="border border-black">{{ i + 1 }}.</td>
-              <td class="border border-black">{{ visitor.nama }}</td>
-              <td class="border border-black">{{ visitor.tanggal }} , {{ visitor.time }}</td>
+              <td class="border border-black">{{ visitor.nama }} {{ visitor.kelas }}</td>
+              <td class="border border-black">{{ visitor.tanggal }}, {{ visitor.time }}</td>
               <td class="border border-black">{{ visitor.status }}</td>
             </tr>
           </tbody>
@@ -52,11 +50,20 @@ useHead({
     },
   ],
 });
+import Cam from '@/components/Cam.vue'; // '@' merujuk ke folder root proyek
+
+
+
 const supabase = useSupabaseClient();
 const visitors = ref([]);
 const selectedDate = ref(null);
 const today = ref("");
 
+// Fungsi untuk menangani event deteksi wajah dari komponen Cam
+const handleDetection = (data) => {
+  console.log('Detected data from Cam:', data);
+  // Lakukan sesuatu dengan data ini
+};
 const getTodayDate = () => {
   const date = new Date();
   const year = date.getFullYear();
@@ -65,22 +72,107 @@ const getTodayDate = () => {
   return `${parseInt(day)}-${parseInt(month)}-${year}`;
 };
 
+// Fungsi untuk mengonversi waktu ke format 2 digit (HH:MM)
+const formatTime = (timeString) => {
+  if (!timeString) return '00:00'; // Pastikan timeString tidak kosong
+
+  // Pisahkan jam dan menit dari string time
+  const [hours, minutes] = timeString.split(":"); 
+
+  // Pastikan jam dan menit dua digit
+  return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+};
+
+// Fungsi untuk mengonversi waktu ke waktu Jakarta
+const formatToJakartaTime = (timeString) => {
+  if (!timeString) return '00:00'; // Pastikan timeString tidak kosong
+
+  // Buat objek Date berdasarkan waktu yang disimpan
+  const utcDate = new Date(`1970-01-01T${timeString}Z`); // Z untuk UTC
+  const jakartaDate = new Date(utcDate.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+
+  // Ambil jam dan menit dalam format 2 digit
+  const hours = String(jakartaDate.getHours()).padStart(2, '0');
+  const minutes = String(jakartaDate.getMinutes()).padStart(2, '0');
+
+  return `${hours}:${minutes}`; // Kembalikan dalam format HH:MM
+};
+
+
+
+// Mengambil data siswa dari Supabase dan mengatur listener untuk perubahan
 const getSiswa = async () => {
-  const { data } = await supabase
-    .from("allsiswa")
-    .select("*")
-    .order("id", { ascending: false })
-    .on("INSERT", (payload) => {
-      visitors.value.unshift(payload.new);
-    });
+  const { data, error } = await supabase.from("siswa").select("*").order("id", { ascending: false });
   if (data) {
     visitors.value = data.map((visitor) => ({
       ...visitor,
-      status: "Hadir",
+      status: visitor.status || "Hadir", // Default status "Hadir" jika belum ada
+      time: formatToJakartaTime(visitor.time), // Format waktu ke HH:MM
       tanggal: formatDate(visitor.tanggal),
     }));
+    
+    // Mengatur channel untuk mendengarkan perubahan
+    supabase
+      .channel('channel_siswa')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'siswa' }, (payload) => {
+        console.log('Data baru:', payload);
+        getSiswa(); // Memperbarui data setelah ada perubahan
+      })
+      .subscribe();
+  } else if (error) {
+    console.error("Error fetching data from Supabase:", error);
   }
 };
+
+
+// // Fungsi untuk mengambil data siswa dari Supabase
+// const getSiswa = async () => {
+//   const { data, error } = await supabase.from("siswa").select("*").order("id", { ascending: false });
+//   if (data) {
+//     visitors.value = data.map((visitor) => ({
+//       ...visitor,
+//       status: visitor.status || "Hadir", // Default status "Hadir" jika belum ada
+//       time: formatToJakartaTime(visitor.time), // Format waktu ke HH:MM
+//       tanggal: formatDate(visitor.tanggal),
+//     }));
+//   } else if (error) {
+//     console.error("Error fetching data from Supabase:", error);
+//   }
+// };
+
+
+
+// const getSiswa = async () => {
+//   const { data } = await supabase.from("siswa").select("*").order("id", { ascending: false });
+//   if (data) {
+//     visitors.value = data.map((visitor) => ({
+//       ...visitor,
+//       status: visitor.status || "H",
+//       tanggal: formatDate(visitor.tanggal),
+//     }));
+//   }
+
+  // supabase
+  //   .channel('channel_siswa')
+  //   .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'siswa' }, handleDariCam)
+  //   .subscribe()
+// };
+
+const {
+  data: students,
+  error,
+  refresh,
+} = useAsyncData(
+  "students",
+  async () => {
+    let query = supabase.from("siswa").select();
+    const { data, error } = await query;
+    return data;
+  },
+  {
+    immediate: false,
+  }
+);
 
 onMounted(() => {
   today.value = getTodayDate();
@@ -93,15 +185,29 @@ const formatDate = (dateString) => {
   return `${year}-${month}-${day}`;
 };
 
-// Computed property untuk filter data berdasarkan tanggal
-const filteredVisitors = computed(() => {
-  if (!selectedDate.value) return visitors.value; // Tampilkan semua data jika tidak ada tanggal yang dipilih
-  return visitors.value.filter((visitor) => {
-    // Pastikan tanggal siswa cocok dengan tanggal yang dipilih
-    return visitor.tanggal === selectedDate.value;
-  });
-});
-const applyFilter = () => {
-  // Filter sudah ditangani oleh computed property
-};
+// async function filterData(event) {
+//   const { data, error } = await supabase.from("siswa").select().eq("tanggal", event.target.value);
+//   if (data) {
+//     visitors.value = data;
+//   }
+// }
+
+// Fungsi untuk filter data berdasarkan tanggal
+async function filterData(event) {
+  try {
+    const { data, error } = await supabase.from("siswa").select().eq("tanggal", event.target.value);
+    if (error) {
+      console.error("Error filtering data:", error);
+    } else {
+      visitors.value = data.map((visitor) => ({
+        ...visitor,
+        time: formatTime(visitor.time), // Pastikan waktu dalam format HH:MM
+      }));
+    }
+  } catch (err) {
+    console.error("Unexpected error:", err);
+  }
+}
+
+
 </script>

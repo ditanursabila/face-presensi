@@ -13,6 +13,8 @@
         </div>
         <div class="flex items-center justify-between">
           <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">Login</button>
+
+          <nuxt-link to="/" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Cancel</nuxt-link>
         </div>
         <p v-if="errorMessage" class="text-red-500 mt-4">{{ errorMessage }}</p>
       </form>

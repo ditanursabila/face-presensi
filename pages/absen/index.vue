@@ -1,5 +1,5 @@
 <template> 
-  <div class="min-h-screen flex items-center justify-center bg-gray-100">
+  <div class="min-h-screen flex items-center justify-center bg-gray-100 ">
     <div class="bg-white p-8  rounded-lg shadow-md me-10 w-full max-w-md">
       <h2 class="text-2xl font-bold mb-6 text-center">Tambah Absensi</h2>
       <form @submit.prevent="kirimData">
@@ -18,7 +18,11 @@
         <!-- Keterangan -->
         <div class="mb-6">
           <label class="block text-gray-700 text-sm font-bold mb-2" for="keterangan"> Keterangan </label>
-          <input v-model="form.status" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="keterangan" placeholder="Masukkan Keterangan"></input>
+          <select v-model="form.keterangan" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                  <option value="Sakit">Sakit</option>
+                  <option value="Izin">Izin</option>
+                  <option value="Alpa">Alpa</option>
+                </select>
         </div>
 
         <div class="flex items-center justify-between">
@@ -69,7 +73,7 @@
 
     <!-- Popup Edit -->
     <div v-if="isEditing" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div class="bg-white p-6 rounded-lg shadow-xl">
+      <div class="bg-white w-96 p-6 rounded-lg shadow-xl">
         <h3 class="text-2xl font-bold mb-4">Edit Data Siswa</h3>
 
         <!-- Form Edit -->

@@ -26,22 +26,19 @@
         </div>
 
         <div class="flex items-center justify-between">
-          <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">Simpan Data</button>
+          <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">Send Data</button>
           
           <nuxt-link to="/logout" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"> Logout </nuxt-link>
         </div>
       </form>
     </div>
 
+    <!-- tabel absensi -->
     <div class="flex items-center justify-center bg-gray-100">
       <div class="bg-white ms-10 rounded-lg shadow-md  max-w-5xl">
         <div class="max-h-[320px] overflow-auto border border-black p-4 m-5 mt-[65px] shadow-xl flex-1">
-          <div class="text-2xl font-semibold text-center">
-            <h3>Presensi Hari Ini {{ formatDate(today) }}</h3>
-          </div>
-
-          <div class="flex justify-between mb-4 mt-5">
-            <input type="date" @change="filterData" class="border p-2 rounded" />
+          <div class="text-2xl font-semibold mb-5 text-center">
+            <h3>Riwayat Presensi</h3>
           </div>
 
           <table class="border-collapse border border-black w-full min-w-full table-auto">
@@ -62,7 +59,7 @@
                 <td class="border border-black">{{ visitor.status }}</td>
                 <td class="border border-black">
                   <button @click="editData(visitor)" class="text-blue-600 hover:underline">Edit |</button>
-                  <button @click="hapusData(visitor.id)" class="text-red-600 hover:underline"> | Hapus</button>
+                  <button @click="confirmDelete(visitor)" class="text-red-600 hover:underline"> | Delete</button>
                 </td>
               </tr>
             </tbody>
@@ -92,11 +89,25 @@
 
         <!-- Tombol Simpan dan Batal -->
         <div class="flex justify-between">
-          <button @click="updateData" class="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">Simpan</button>
-          <button @click="isEditing = false" class="bg-gray-500 hover:bg-gray-700 text-white py-2 px-4 rounded">Batal</button>
+          <button @click="updateData" class="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">Save</button>
+          <button @click="isEditing = false" class="bg-gray-500 hover:bg-gray-700 text-white py-2 px-4 rounded">Cancel</button>
         </div>
       </div>
     </div>
+
+    <!-- Modal Konfirmasi Hapus -->
+    <div v-if="showConfirmModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+      <div class="bg-white w-96 p-6 rounded-lg shadow-xl">
+        <h3 class="text-lg font-semibold mb-4">Konfirmasi Hapus</h3>
+        <p>{{ visitorToDelete?.nama }} yakin mau dihapus?</p>
+      <div class="flex justify-between mt-4">
+        <button @click="hapusData" class="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded">Delete</button>
+        <button @click="showConfirmModal = false" class="bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded">Cancel</button>
+    </div>
+  </div>
+</div>
+
+    
   </div>
 </template>
 
@@ -118,16 +129,6 @@ const form = ref({
   status: "",
 });
 
-const getTodayDate = () => {
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${parseInt(day)}-${parseInt(month)}-${year}`;
-};
-
-const today = ref(getTodayDate()); // Inisialisasi today setelah getTodayDate didefinisikan
-
 const kirimData = async () => {
   const { error } = await supabase.from("siswa").insert([form.value]);
   if (!error) {
@@ -137,9 +138,11 @@ const kirimData = async () => {
 };
 
 const visitors = ref([]);
-const selectedDate = ref(null);
 const isEditing = ref(false);
 const selectedVisitor = ref(null);
+const showConfirmModal = ref(false); // Untuk mengontrol tampilan modal konfirmasi
+const visitorToDelete = ref(null); // Untuk menyimpan data visitor yang akan dihapus
+
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -147,12 +150,6 @@ const formatDate = (dateString) => {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const year = date.getFullYear();
   return `${day}-${month}-${year}`;
-};
-
-const formatTime = (timeString) => {
-  if (!timeString) return '00:00';
-  const [hours, minutes] = timeString.split(":");
-  return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
 };
 
 const formatToJakartaTime = (timeString) => {
@@ -201,35 +198,27 @@ const updateData = async () => {
   }
 };
 
-const hapusData = async (id) => {
-  const { error } = await supabase.from("siswa").delete().eq('id', id);
-  if (!error) {
-    getSiswa();
-  } else {
-    console.error("Error deleting data:", error);
+const hapusData = async () => {
+  if (visitorToDelete.value) {
+    const { error } = await supabase.from("siswa").delete().eq("id", visitorToDelete.value.id);
+    if (!error) {
+      getSiswa(); // Refresh data tabel
+    } else {
+      console.error("Error deleting data:", error);
+    }
+    showConfirmModal.value = false; // Tutup modal setelah menghapus
+    visitorToDelete.value = null; // Reset data setelah menghapus
   }
 };
+
 
 const editData = (visitor) => {
   selectedVisitor.value = { ...visitor };
   isEditing.value = true;
 };
 
-// Fungsi untuk filter data berdasarkan tanggal
-async function filterData(event) {
-  try {
-    const { data, error } = await supabase.from("siswa").select().eq("tanggal", event.target.value);
-    if (error) {
-      console.error("Error filtering data:", error);
-    } else {
-      visitors.value = data.map((visitor) => ({
-        ...visitor,
-        time: formatTime(visitor.time), // Pastikan waktu dalam format HH:MM
-      }));
-    }
-  } catch (err) {
-    console.error("Unexpected error:", err);
-  }
-}
-
+const confirmDelete = (visitor) => {
+  visitorToDelete.value = visitor; // Simpan data visitor yang akan dihapus
+  showConfirmModal.value = true; // Tampilkan modal konfirmasi
+};
 </script>

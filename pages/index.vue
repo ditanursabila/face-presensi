@@ -201,7 +201,7 @@ async function filterData(event) {
     } else {
       visitors.value = data.map((visitor) => ({
         ...visitor,
-        time: formatTime(visitor.time), // Pastikan waktu dalam format HH:MM
+        time: formatToJakartaTime(visitor.time), // Pastikan waktu dalam format HH:MM
       }));
     }
   } catch (err) {

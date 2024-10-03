@@ -24,15 +24,27 @@
 
 <script setup>
 const supabase = useSupabaseClient();
-
 const email = ref("");
 const password = ref("");
+const errorMessage = ref("");
 
 const Login = async () => {
+  // Validasi input
+  if (!email.value || !password.value) {
+    errorMessage.value = "Email dan password harus diisi!";
+    return;
+  }
+
+  // Proses login
   const { data, error } = await supabase.auth.signInWithPassword({
     email: email.value,
     password: password.value,
   });
+
+  if (error) {
+    errorMessage.value = error.message;  // Tampilkan pesan error jika login gagal
+  }
+
   if (data) {
     navigateTo("/absen");
     const user = useSupabaseUser();
@@ -40,3 +52,4 @@ const Login = async () => {
   }
 };
 </script>
+

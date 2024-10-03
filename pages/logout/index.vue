@@ -1,6 +1,6 @@
 <template>
   <div class="text-center text-3xl mt-16">
-    <h1>Anda sedang keluar dari halaman tambah siswa...</h1>
+    <h1>Anda sedang keluar dari halaman Absensi...</h1>
   </div>
 </template>
 

@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gray-100">
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
-      <h2 class="text-2xl font-bold mb-6 text-center">Login Tambah Siswa</h2>
+      <h2 class="text-2xl font-bold mb-6 text-center">Login Absensi</h2>
       <form @submit.prevent="Login">
         <div class="mb-4">
           <label class="block text-gray-700 text-sm font-bold mb-2" for="email"> Email </label>

@@ -18,7 +18,7 @@
         <!-- Keterangan -->
         <div class="mb-6">
           <label class="block text-gray-700 text-sm font-bold mb-2" for="keterangan"> Keterangan </label>
-          <select v-model="form.keterangan" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          <select v-model="form.status" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                   <option value="Sakit">Sakit</option>
                   <option value="Izin">Izin</option>
                   <option value="Alpa">Alpa</option>
@@ -131,11 +131,13 @@ const form = ref({
 
 const kirimData = async () => {
   const { error } = await supabase.from("siswa").insert([form.value]);
-  if (!error) {
-    form.value = { nama: "", kelas: "", status: "" }; // Reset form
-    getSiswa(); // Refresh data tabel
+  if (error) {
+    console.error('Error inserting data:', error.message);
+  } else {
+    navigateTo("/absen");
   }
 };
+
 
 const visitors = ref([]);
 const isEditing = ref(false);

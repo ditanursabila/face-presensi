@@ -1,24 +1,27 @@
 <template>
-  <div>
-    <div>
-      <div v-if="detected">
-        <span class="text-xs font-medium px-10 py-2 ms-48 mt-4 bg-green-100 text-green-800 rounded-full dark:bg-green-900 dark:text-green-300"> Terdeteksi </span>
-      </div>
-      <div v-else>
-        <span class="text-xs font-medium px-10 py-2 ms-48 mt-4 dark:bg-red-900 dark:text-red-300 rounded-full"> Gagal Deteksi </span>
-      </div>
-
-      <div class="overflow-auto border border-black p-4 m-5 shadow-xl flex-1">
-        <div class="w-full md:h-[320px] bg-black flex items-center justify-center">
-          <div id="webcam-container"></div>
+  <div >
+    <div >
+      <div class=" bg-slate-50 h-[75vh] m-5 shadow-gray-500 shadow-xl flex-1">
+        <div v-if="detected" class="flex justify-center">
+          <span class="w-40 text-xs font-medium px-10 py-2 mt-5 bg-green-100 text-green-800 rounded-full dark:bg-green-900 dark:text-green-300"> Terdeteksi </span>
         </div>
-        <div id="label-container"></div>
+        
+        <div v-else class="flex justify-center">
+          <span class="w-40 text-xs font-medium px-10 py-2 mt-5 dark:bg-red-900 dark:text-red-300 rounded-full"> Gagal Deteksi </span>
+        </div>
+        <div class="m-5 h-[50vh] shadow-xl flex-1  bg-black flex justify-center">
+          <div id="webcam-container" class="mt-10">
+            <div id="label-container" class="text-white text-center"></div>
+          </div>
+        </div>
+        <div class="flex justify-center">
+          <button v-if="!isStarted" class="w-40 text-dark text-md font-medium py-1  rounded-md  text-black bg-blue-600 hover:bg-blue-800 focus:outline-none focus:shadow-outline" type="button" @click="init()">Presensi</button>
+          <button v-if="classNameDetected != null && classNameDetected != ''" class="w-40 bg-green-700 text-dark text-md font-medium  py-1 rounded-md hover:bg-green-900 text-white focus:outline-none focus:shadow-outline" type="button" @click="handleButtonClick">
+            Send Data
+          </button>
+        </div>
       </div>
     </div>
-    <button v-if="!isStarted" class="bg-blue-100 text-dark text-md font-medium px-10 py-2 ms-48 mt-4 rounded-md dark:bg-blue-800 text-black" type="button" @click="init()">Presensi</button>
-    <button v-if="classNameDetected != null && classNameDetected != ''" class="bg-green-100 text-dark text-md font-medium px-10 py-2 ms-48 mt-4 rounded-md dark:bg-green-900 dark:text-green-300" type="button" @click="handleButtonClick">
-      Send Data
-    </button>
   </div>
 </template>
 

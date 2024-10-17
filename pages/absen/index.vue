@@ -1,7 +1,8 @@
-<template> 
-  <div class="min-h-screen flex items-center justify-center bg-gray-100 ">
-    <div class="bg-white p-8  rounded-lg shadow-md me-10 w-full max-w-md">
-      <h2 class="text-2xl font-bold mb-6 text-center">Tambah Absensi</h2>
+<template>
+  <div class="flex flex-col  lg:flex-row items-center justify-center">
+    <div class="bg-slate-50 p-8 rounded-lg shadow-xl mt-10 lg:me-10  w-[80vh]">
+      <div class="h-[55vh]">
+      <h2 class="text-2xl font-bold text-center">Tambah Absensi</h2>
       <form @submit.prevent="kirimData">
         <!-- Nama Siswa -->
         <div class="mb-4">
@@ -19,29 +20,29 @@
         <div class="mb-6">
           <label class="block text-gray-700 text-sm font-bold mb-2" for="keterangan"> Keterangan </label>
           <select v-model="form.status" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                  <option value="Sakit">Sakit</option>
-                  <option value="Izin">Izin</option>
-                  <option value="Alpa">Alpa</option>
-                </select>
+            <option value="Sakit">Sakit</option>
+            <option value="Izin">Izin</option>
+            <option value="Alpa">Alpa</option>
+          </select>
         </div>
 
         <div class="flex items-center justify-between">
           <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">Send Data</button>
-          
           <nuxt-link to="/logout" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"> Logout </nuxt-link>
         </div>
       </form>
     </div>
+    </div>
 
-    <!-- tabel absensi -->
-    <div class="flex items-center justify-center bg-gray-100">
-      <div class="bg-white ms-10 rounded-lg shadow-md  max-w-5xl">
-        <div class="max-h-[320px] overflow-auto border border-black p-4 m-5 mt-[65px] shadow-xl flex-1">
+    <!-- Tabel absensi -->
+    <div class="flex items-center justify-center mt-10">
+      <div class="bg-slate-50 rounded-lg shadow-xl">
+        <div class="h-[60vh] overflow-auto mt-5 p-4 m-5 shadow-xl">
           <div class="text-2xl font-semibold mb-5 text-center">
             <h3>Riwayat Presensi</h3>
           </div>
 
-          <table class="border-collapse border border-black w-full min-w-full table-auto">
+          <table class="border-collapse border border-black w-full">
             <thead class="bg-[#0365AE] text-white">
               <tr>
                 <th class="border border-black">NO</th>
@@ -70,7 +71,7 @@
 
     <!-- Popup Edit -->
     <div v-if="isEditing" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div class="bg-white w-96 p-6 rounded-lg shadow-xl">
+      <div class="bg-slate-50 w-11/12 md:w-96 p-6 rounded-lg shadow-gray-500 shadow-xl">
         <h3 class="text-2xl font-bold mb-4">Edit Data Siswa</h3>
 
         <!-- Form Edit -->
@@ -97,19 +98,18 @@
 
     <!-- Modal Konfirmasi Hapus -->
     <div v-if="showConfirmModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div class="bg-white w-96 p-6 rounded-lg shadow-xl">
+      <div class="bg-white w-11/12 md:w-96 p-6 rounded-lg shadow-xl">
         <h3 class="text-lg font-semibold mb-4">Konfirmasi Hapus</h3>
         <p>{{ visitorToDelete?.nama }} yakin mau dihapus?</p>
-      <div class="flex justify-between mt-4">
-        <button @click="hapusData" class="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded">Delete</button>
-        <button @click="showConfirmModal = false" class="bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded">Cancel</button>
+        <div class="flex justify-between mt-4">
+          <button @click="hapusData" class="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded">Delete</button>
+          <button @click="showConfirmModal = false" class="bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded">Cancel</button>
+        </div>
+      </div>
     </div>
   </div>
-</div>
-
-    
-  </div>
 </template>
+
 
 <script setup>
 useHead({

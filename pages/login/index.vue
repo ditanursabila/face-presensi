@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-100">
-    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
+  <div class="flex items-center justify-center mt-20">
+    <div class="bg-slate-50 p-8 rounded-lg shadow-md w-[80vh]">
       <h2 class="text-2xl font-bold mb-6 text-center">Login Absensi</h2>
       <form @submit.prevent="Login">
         <div class="mb-4">

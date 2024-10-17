@@ -1,11 +1,12 @@
 <template>
-  <div class="container mx-auto p-4">
+  <div class="container max-[200vh]">
     <div class="flex flex-col lg:flex-row gap-4">
-      <div class="flex-1 p-4">
-        <Cam  @deteksi-wajah="handleDetection"/>
+      <div class="flex-1">
+        <Cam />
       </div>
 
-      <div class="max-w-full max-h-[348px] overflow-auto border border-black p-4 m-5 mt-[65px] shadow-xl flex-1">
+      <div class=" max-h-[75vh] bg-slate-50 m-5 shadow-gray-500 shadow-xl flex-1">
+        <div class="p-4 m-5 h-[65vh] flex-1 mt-10 overflow-auto bg-slate-50">
         <div class="text-2xl font-semibold text-center">
           <h3>Presensi Hari Ini {{ formatDate(today) }}</h3>
         </div>
@@ -14,7 +15,6 @@
           <input type="date" @change="filterData" class="border p-2 rounded" />
           <nuxt-link to="/login" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"> Absensi </nuxt-link>
         </div>
-        <div class="mb-5"></div>
 
         <table class="border-collapse border border-black w-full min-w-full table-auto">
           <thead class="bg-[#0365AE] text-white">
@@ -35,6 +35,7 @@
             </tr>
           </tbody>
         </table>
+      </div>
       </div>
     </div>
   </div>
@@ -60,10 +61,10 @@ const selectedDate = ref(null);
 const today = ref("");
 
 // Fungsi untuk menangani event deteksi wajah dari komponen Cam
-const handleDetection = (data) => {
-  console.log('Detected data from Cam:', data);
-  // Lakukan sesuatu dengan data ini
-};
+// const handleDetection = (data) => {
+//   console.log('Detected data from Cam:', data);
+//   // Lakukan sesuatu dengan data ini
+// };
 const getTodayDate = () => {
   const date = new Date();
   const year = date.getFullYear();

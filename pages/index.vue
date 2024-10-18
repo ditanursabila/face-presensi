@@ -1,11 +1,11 @@
 <template>
-  <div class="container max-[200vh]">
+  <div class="container">
     <div class="flex flex-col lg:flex-row gap-4">
       <div class="flex-1">
         <Cam />
       </div>
 
-      <div class=" max-h-[75vh] bg-slate-50 m-5 shadow-gray-500 shadow-xl flex-1">
+      <div class=" bg-slate-50 m-5 shadow-gray-500 shadow-xl flex-1">
         <div class="p-4 m-5 h-[65vh] flex-1 mt-10 overflow-auto bg-slate-50">
         <div class="text-2xl font-semibold text-center">
           <h3>Presensi Hari Ini {{ formatDate(today) }}</h3>

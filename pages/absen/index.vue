@@ -43,8 +43,6 @@
           </div>
 
           <div>
-            <!-- <input type="date" v-model="startDate" class="border rounded py-2 px-3 mb-4" />
-            <input type="date" v-model="endDate" class="border rounded py-2 px-3 ms-4  me-5 mb-4" /> -->
             <button @click="downloadExcel" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-4">
               Download Data Excel
             </button>

@@ -42,6 +42,14 @@
             <h3>Riwayat Presensi</h3>
           </div>
 
+          <div>
+            <input type="date" v-model="startDate" class="border rounded py-2 px-3 mb-4" />
+            <input type="date" v-model="endDate" class="border rounded py-2 px-3 ms-4  me-5 mb-4" />
+            <button @click="downloadExcel" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-4">
+              Download Data Excel
+            </button>
+          </div>
+
           <table class="border-collapse border border-black w-full">
             <thead class="bg-[#0365AE] text-white">
               <tr>
@@ -121,6 +129,25 @@ useHead({
     },
   ],
 });
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+
+// Fungsi untuk mendownload data Excel
+const downloadExcel = () => {
+  // Buat worksheet dari data yang ada di visitors
+  const worksheet = XLSX.utils.json_to_sheet(visitors.value);
+  
+  // Buat workbook dan tambahkan worksheet ke dalamnya
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Data');
+
+  // Hasilkan file Excel dalam format array buffer
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+
+  // Buat Blob dan download file dengan nama 'data-absensi.xlsx'
+  const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+  saveAs(blob, 'data-absensi.xlsx');
+};
 
 const supabase = useSupabaseClient();
 const form = ref({
